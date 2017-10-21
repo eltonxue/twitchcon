@@ -9,7 +9,6 @@
 
         <style type="text/css">
 
-
         </style>
 
     </head>
@@ -21,9 +20,6 @@
             var liveUrl = "https://api.twitch.tv/kraken/streams/";
             var clientId = "3so67xsajt6xysyj3gad5bg1eanhwc";
 
-            var width = 200;
-            var height = 250;
-
             function channel(streamer, title, streamerPic, live, streamThumbnail) {
                 this.streamer = streamer;
                 this.title = title;
@@ -33,8 +29,11 @@
             }
 
             async function getFollowedChannels(user) {
+
                 try {
+
                     var channelsUrl = "https://api.twitch.tv/kraken/users/" + user + "/follows/channels";
+
                     return await axios({
                         method:'get',
                         url: channelsUrl,
@@ -50,6 +49,7 @@
                                 var streamer = responseA.data.follows[i].channel.name;
                                 var title = responseA.data.follows[i].channel.status;
                                 var streamerPic = responseA.data.follows[i].channel.logo;
+
                                 var live = await axios({
                                     method:'get',
                                     url: liveUrl + streamer,
@@ -58,6 +58,7 @@
                                     .then(function(responseB) {
 
                                         return responseB.data.stream != null;
+
                                 });
 
                                 var streamThumbnail = await axios({
@@ -68,20 +69,28 @@
                                     .then(function(responseC) {
 
                                         if (live) {
-                                            return responseC.data.stream.preview.medium;
+
+                                            return responseC.data.stream.preview.large;
+
                                         } else {
+
                                             return responseA.data.follows[i].channel.video_banner;
+
                                         }
                                 });
 
                                 var channelEntry = new channel(streamer, title, streamerPic, live, streamThumbnail);
                                 channelList.push(channelEntry);
+
                             }
+
                             return channelList;
                     });
 
                 } catch (e) {
+
                     console.error(e);
+
                 }
             }
 
