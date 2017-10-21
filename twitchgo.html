@@ -16,87 +16,75 @@
     <body>
 
         <script text="text/javascript">
+var liveUrl = 'https://api.twitch.tv/kraken/streams/';
+var clientId = '3so67xsajt6xysyj3gad5bg1eanhwc';
 
-            var liveUrl = "https://api.twitch.tv/kraken/streams/";
-            var clientId = "3so67xsajt6xysyj3gad5bg1eanhwc";
+function channel(streamer, title, streamerPic, live, streamThumbnail) {
+  this.streamer = streamer;
+  this.title = title;
+  this.streamerPic = streamerPic;
+  this.live = live;
+  this.streamThumbnail = streamThumbnail;
+}
 
-            function channel(streamer, title, streamerPic, live, streamThumbnail) {
-                this.streamer = streamer;
-                this.title = title;
-                this.streamerPic = streamerPic;
-                this.live = live;
-                this.streamThumbnail = streamThumbnail;
-            }
+async function getFollowedChannels(user) {
+  try {
+    var channelsUrl =
+      'https://api.twitch.tv/kraken/users/' + user + '/follows/channels';
 
-            async function getFollowedChannels(user) {
+    return await axios({
+      method: 'get',
+      url: channelsUrl,
+      headers: { 'client-id': clientId }
+    }).then(async function(responseA) {
+      var channelList = [];
 
-                try {
+      var followCount = responseA.data.follows.length;
 
-                    var channelsUrl = "https://api.twitch.tv/kraken/users/" + user + "/follows/channels";
+      for (i = 0; i < followCount; i++) {
+        var streamer = responseA.data.follows[i].channel.name;
+        var title = responseA.data.follows[i].channel.status;
+        var streamerPic = responseA.data.follows[i].channel.logo;
 
-                    return await axios({
-                        method:'get',
-                        url: channelsUrl,
-                        headers: {'client-id': clientId}
-                    })
-                        .then(async function(responseA) {
+        var live = await axios({
+          method: 'get',
+          url: liveUrl + streamer,
+          headers: { 'client-id': clientId }
+        }).then(function(responseB) {
+          return responseB.data.stream != null;
+        });
 
-                            var channelList = [];
+        var streamThumbnail = await axios({
+          method: 'get',
+          url: liveUrl + streamer,
+          headers: { 'client-id': clientId }
+        }).then(function(responseC) {
+          if (live) {
+            return responseC.data.stream.preview.large;
+          } else {
+            return responseA.data.follows[i].channel.video_banner;
+          }
+        });
 
-                            var followCount = responseA.data.follows.length;
+        var channelEntry = new channel(
+          streamer,
+          title,
+          streamerPic,
+          live,
+          streamThumbnail
+        );
+        channelList.push(channelEntry);
+      }
 
-                            for (i = 0; i < followCount; i++) {
-                                var streamer = responseA.data.follows[i].channel.name;
-                                var title = responseA.data.follows[i].channel.status;
-                                var streamerPic = responseA.data.follows[i].channel.logo;
+      return channelList;
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
-                                var live = await axios({
-                                    method:'get',
-                                    url: liveUrl + streamer,
-                                    headers: {'client-id': clientId}
-                                })
-                                    .then(function(responseB) {
-
-                                        return responseB.data.stream != null;
-
-                                });
-
-                                var streamThumbnail = await axios({
-                                    method:'get',
-                                    url: liveUrl + streamer,
-                                    headers: {'client-id': clientId}
-                                })
-                                    .then(function(responseC) {
-
-                                        if (live) {
-
-                                            return responseC.data.stream.preview.large;
-
-                                        } else {
-
-                                            return responseA.data.follows[i].channel.video_banner;
-
-                                        }
-                                });
-
-                                var channelEntry = new channel(streamer, title, streamerPic, live, streamThumbnail);
-                                channelList.push(channelEntry);
-
-                            }
-
-                            return channelList;
-                    });
-
-                } catch (e) {
-
-                    console.error(e);
-
-                }
-            }
-
-            console.log(getFollowedChannels("richmondr"));
-
-        </script>
+console.log(getFollowedChannels('richmondr'));
+</script>
 
     </body>
 

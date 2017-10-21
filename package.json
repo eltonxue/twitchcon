@@ -8,6 +8,7 @@
   },
   "author": "Tyler Shaddix",
   "dependencies": {
+    "axios": "^0.16.2",
     "gulp": "^3.9.1",
     "lodash": "^4.17.4",
     "react": "^15.6.2",
