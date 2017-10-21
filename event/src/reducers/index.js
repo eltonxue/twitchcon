@@ -1,7 +1,7 @@
-import {combineReducers} from 'redux';
+import { combineReducers } from 'redux';
 
-import count from './count';
+import FavoritesReducer from './reducer_favorites.js';
 
 export default combineReducers({
-  count
+  favorites: FavoritesReducer
 });

@@ -1,10 +1,7 @@
 const path = require('path');
 
 module.exports = {
-
-  entry: [
-    './popup/src/scripts/index.js'
-  ],
+  entry: ['./popup/src/scripts/index.js'],
 
   output: {
     filename: 'popup.js',

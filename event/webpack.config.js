@@ -1,10 +1,7 @@
 const path = require('path');
 
 module.exports = {
-
-  entry: [
-    './event/src/index.js'
-  ],
+  entry: ['./event/src/index.js'],
 
   output: {
     filename: 'event.js',
