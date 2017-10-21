@@ -21,11 +21,15 @@
             var liveUrl = "https://api.twitch.tv/kraken/streams/";
             var clientId = "3so67xsajt6xysyj3gad5bg1eanhwc";
 
-            function channel(streamer, title, streamerPic, live) {
+            var width = 200;
+            var height = 250;
+
+            function channel(streamer, title, streamerPic, live, streamThumbnail) {
                 this.streamer = streamer;
                 this.title = title;
                 this.streamerPic = streamerPic;
                 this.live = live;
+                this.streamThumbnail = streamThumbnail;
             }
 
             async function getFollowedChannels(user) {
@@ -55,8 +59,22 @@
 
                                         return responseB.data.stream != null;
                                 });
-                                console.log(live);
-                                var channelEntry = new channel(streamer, title, streamerPic, live);
+
+                                var streamThumbnail = await axios({
+                                    method:'get',
+                                    url: liveUrl + streamer,
+                                    headers: {'client-id': clientId}
+                                })
+                                    .then(function(responseC) {
+
+                                        if (live) {
+                                            return responseC.data.stream.preview.medium;
+                                        } else {
+                                            return responseA.data.follows[i].channel.video_banner;
+                                        }
+                                });
+
+                                var channelEntry = new channel(streamer, title, streamerPic, live, streamThumbnail);
                                 channelList.push(channelEntry);
                             }
                             return channelList;
