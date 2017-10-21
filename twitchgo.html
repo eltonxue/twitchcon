@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <title>TwitchGo</title>
+
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+        <style type="text/css">
+
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <script text="text/javascript">
+
+            var liveUrl = "https://api.twitch.tv/kraken/streams/";
+            var clientId = "3so67xsajt6xysyj3gad5bg1eanhwc";
+
+            function channel(streamer, title, streamerPic, live) {
+                this.streamer = streamer;
+                this.title = title;
+                this.streamerPic = streamerPic;
+                this.live = live;
+            }
+
+            async function getFollowedChannels(user) {
+                try {
+                    var channelsUrl = "https://api.twitch.tv/kraken/users/" + user + "/follows/channels";
+                    return await axios({
+                        method:'get',
+                        url: channelsUrl,
+                        headers: {'client-id': clientId}
+                    })
+                        .then(async function(responseA) {
+
+                            var channelList = [];
+
+                            var followCount = responseA.data.follows.length;
+
+                            for (i = 0; i < followCount; i++) {
+                                var streamer = responseA.data.follows[i].channel.name;
+                                var title = responseA.data.follows[i].channel.status;
+                                var streamerPic = responseA.data.follows[i].channel.logo;
+                                var live = await axios({
+                                    method:'get',
+                                    url: liveUrl + streamer,
+                                    headers: {'client-id': clientId}
+                                })
+                                    .then(function(responseB) {
+
+                                        return responseB.data.stream != null;
+                                });
+                                console.log(live);
+                                var channelEntry = new channel(streamer, title, streamerPic, live);
+                                channelList.push(channelEntry);
+                            }
+                            return channelList;
+                    });
+
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+
+            console.log(getFollowedChannels("richmondr"));
+
+        </script>
+
+    </body>
+
+</html>
